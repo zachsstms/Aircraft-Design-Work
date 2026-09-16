@@ -146,7 +146,6 @@ print(f"Part 2 minimum sink: {sink2[i_sink2]:.3f} m/s "
 print(f"Part 2 best glide speed: {V2[i_glide2]3.6:.1f} km/h")
 
 
-plt.show()
 
 
 
