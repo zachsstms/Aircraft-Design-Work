@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-CD_min = 0.009649090909
+CD_min = 0.009712727273
 t = 640/(6940+540)
 u = 1
 AR = 20.45  
@@ -48,7 +48,7 @@ plt.savefig('part1_drag_polar.png', dpi=300, bbox_inches='tight')
 
 # part 2
 
-CD_min2 = 0.0106468693
+CD_min2 = 0.0107343693
 WL2 = 352*9.81/8
 AR2 = 15
 e2 = .85
