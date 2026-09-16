@@ -129,6 +129,7 @@ plt.annotate(
     xytext=(8, 12), textcoords="offset points"
 )
 
+plt.gca().yaxis.set_inverted(True)
 plt.xlabel("True airspeed, V (km/h)")
 plt.ylabel("Sink rate (m/s downward)")
 plt.title("Predicted Sink-Rate Polars")
