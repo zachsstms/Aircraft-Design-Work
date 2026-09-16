@@ -151,6 +151,7 @@ plt.gca().yaxis.set_inverted(True)
 plt.xlabel("True airspeed, V (km/h)")
 plt.ylabel("Sink rate (m/s downward)")
 plt.grid(True)
+plt.legend()
 plt.savefig("part2_speed_polar.png", dpi=300, bbox_inches="tight")
 plt.show(block=False)
 
