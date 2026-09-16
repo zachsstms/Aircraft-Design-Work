@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 CD_min = 0.009649090909
 t = 640/(6940+540)
@@ -11,7 +12,7 @@ denom_frac = 1 / ((1+0.03*t - 2*t**2)*u)
 e = 0.85
 #1 / (np.pi*AR*r*CD_min + denom_frac)
 rho = 1.225
-WL = 408 *9.81 /11
+WL = 37.1 * 9.81 
 
 V = np.linspace(1, 600, 10000)
 
@@ -113,29 +114,43 @@ V2, sink2, i_sink2, i_glide2 = sink_rate_curve(
 
 plt.figure(figsize=(10, 6))
 plt.plot(V1 * 3.6, sink1, label="Part 1: ASW-19 baseline", color="blue")
-plt.plot(V2 * 3.6, sink2, label="Part 2: S = 8 m², AR = 15", color="red")
 
-plt.scatter(V1[i_sink1] * 3.6, sink1[i_sink1], color="blue", zorder=3)
-plt.scatter(V2[i_sink2] * 3.6, sink2[i_sink2], color="red", zorder=3)
 
-plt.annotate(
-    f"Min sink: {sink1[i_sink1]:.2f} m/s\nat {V1[i_sink1] * 3.6:.1f} km/h",
-    (V1[i_sink1] * 3.6, sink1[i_sink1]),
-    xytext=(8, 12), textcoords="offset points"
+data = pd.read_csv("asw19_digitized_speed_polar.csv")
+
+polar31 = data[data["wing_loading_kg_m2"] == 31]
+polar37 = data[data["wing_loading_kg_m2"] == 37]
+
+plt.plot(
+    polar31["speed_kmh"],
+    polar31["sink_ms"],
+    "--",
+    label="Published ASW 19 - 31 kg/m²"
 )
-plt.annotate(
-    f"Min sink: {sink2[i_sink2]:.2f} m/s\nat {V2[i_sink2] * 3.6:.1f} km/h",
-    (V2[i_sink2] * 3.6, sink2[i_sink2]),
-    xytext=(8, 12), textcoords="offset points"
+
+plt.plot(
+    polar37["speed_kmh"],
+    polar37["sink_ms"],
+    "-",
+    label="Published ASW 19 - 37 kg/m²"
 )
 
 plt.gca().yaxis.set_inverted(True)
 plt.xlabel("True airspeed, V (km/h)")
 plt.ylabel("Sink rate (m/s downward)")
-plt.title("Predicted Sink-Rate Polars")
 plt.grid(True)
 plt.legend()
-plt.show()
+plt.show(block=False)
+
+
+
+plt.figure(figsize=(10, 6))
+plt.plot(V2 * 3.6, sink2, label="Part 2: S = 8 m², AR = 15", color="red")
+plt.gca().yaxis.set_inverted(True)
+plt.xlabel("True airspeed, V (km/h)")
+plt.ylabel("Sink rate (m/s downward)")
+plt.grid(True)
+
 
 print(f"Part 1 minimum sink: {sink1[i_sink1]:.3f} m/s "
     f"at {V1[i_sink1] * 3.6:.1f} km/h")
@@ -144,3 +159,5 @@ print(f"Part 1 best glide speed: {V1[i_glide1] * 3.6:.1f} km/h")
 print(f"Part 2 minimum sink: {sink2[i_sink2]:.3f} m/s "
     f"at {V2[i_sink2] * 3.6:.1f} km/h")
 print(f"Part 2 best glide speed: {V2[i_glide2] * 3.6:.1f} km/h")
+
+plt.show()
