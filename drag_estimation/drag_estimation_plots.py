@@ -44,6 +44,7 @@ plt.ylim(0, 1.5)
 plt.grid()
 plt.legend()
 plt.show(block=False)
+plt.savefig('part1_drag_polar.png', dpi=300, bbox_inches='tight')
 
 # part 2
 
@@ -79,6 +80,7 @@ plt.xlim(0, 0.1)
 plt.ylim(0, 1.5)
 plt.grid()
 plt.legend()
+plt.savefig('part2_drag_polar.png', dpi=300, bbox_inches='tight')
 plt.show(block=False)
 
 print(f'Part 1 best L/D: {best_L_D1:.3f}')
@@ -140,9 +142,8 @@ plt.xlabel("True airspeed, V (km/h)")
 plt.ylabel("Sink rate (m/s downward)")
 plt.grid(True)
 plt.legend()
+plt.savefig("part1_speed_polar.png", dpi=300, bbox_inches="tight")
 plt.show(block=False)
-
-
 
 plt.figure(figsize=(10, 6))
 plt.plot(V2 * 3.6, sink2, label="Part 2: S = 8 m², AR = 15", color="red")
@@ -150,7 +151,8 @@ plt.gca().yaxis.set_inverted(True)
 plt.xlabel("True airspeed, V (km/h)")
 plt.ylabel("Sink rate (m/s downward)")
 plt.grid(True)
-
+plt.savefig("part2_speed_polar.png", dpi=300, bbox_inches="tight")
+plt.show(block=False)
 
 print(f"Part 1 minimum sink: {sink1[i_sink1]:.3f} m/s "
     f"at {V1[i_sink1] * 3.6:.1f} km/h")
