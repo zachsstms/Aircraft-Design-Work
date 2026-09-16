@@ -86,4 +86,67 @@ print(f'Part 1 at V = {best_V1:.3f}, CL = {best_CL1:.5f}, CD = {best_CD1:.5f}')
 print(f'Part 2 best L/D: {best_L_D2:.3f}')
 print(f'Part 2 at V = {best_V2:.3f}, CL = {best_CL2:.5f}, CD = {best_CD2:.5f}')
 
+
+def sink_rate_curve(CD0, AR, e, mass_kg, S, rho=1.225, CL_max=1.5):
+    W = mass_kg * 9.81
+    V = np.linspace(10, 65, 2000)       # m/s
+    CL = W / (0.5 * rho * V2 * S)
+    CD = CD0 + CL2 / (np.pi * AR * e)
+
+    # Only show the pre-stall portion of the curve
+    valid = CL <= CL_max
+    V, CL, CD = V[valid], CL[valid], CD[valid]
+
+    sink = V * CD / CL # m/s, positive downward
+    i_sink = np.argmin(sink)
+    i_glide = np.argmax(CL / CD)
+
+    return V, sink, i_sink, i_glide
+
+
+V1, sink1, i_sink1, i_glide1 = sink_rate_curve(
+    CD_min, AR, e, mass_kg=408, S=11
+)
+
+V2, sink2, i_sink2, i_glide2 = sink_rate_curve(
+    CD_min2, AR2, e2, mass_kg=352, S=8
+)
+
+plt.figure(figsize=(10, 6))
+plt.plot(V1 * 3.6, sink1, label="Part 1: ASW-19 baseline", color="blue")
+plt.plot(V2 * 3.6, sink2, label="Part 2: S = 8 mÂ², AR = 15", color="red")
+
+plt.scatter(V1[i_sink1] * 3.6, sink1[i_sink1], color="blue", zorder=3)
+plt.scatter(V2[i_sink2] * 3.6, sink2[i_sink2], color="red", zorder=3)
+
+plt.annotate(
+    f"Min sink: {sink1[i_sink1]:.2f} m/s\nat {V1[i_sink1]3.6:.1f} km/h",
+    (V1[i_sink1] 3.6, sink1[i_sink1]),
+    xytext=(8, 12), textcoords="offset points"
+)
+plt.annotate(
+    f"Min sink: {sink2[i_sink2]:.2f} m/s\nat {V2[i_sink2]3.6:.1f} km/h",
+    (V2[i_sink2] 3.6, sink2[i_sink2]),
+    xytext=(8, 12), textcoords="offset points"
+)
+
+plt.xlabel("True airspeed, V (km/h)")
+plt.ylabel("Sink rate (m/s downward)")
+plt.title("Predicted Sink-Rate Polars")
+plt.grid(True)
+plt.legend()
 plt.show()
+
+print(f"Part 1 minimum sink: {sink1[i_sink1]:.3f} m/s "
+      f"at {V1[i_sink1]3.6:.1f} km/h")
+print(f"Part 1 best glide speed: {V1[i_glide1]3.6:.1f} km/h")
+
+print(f"Part 2 minimum sink: {sink2[i_sink2]:.3f} m/s "
+      f"at {V2[i_sink2]3.6:.1f} km/h")
+print(f"Part 2 best glide speed: {V2[i_glide2]3.6:.1f} km/h")
+
+
+plt.show()
+
+
+
