@@ -9,8 +9,7 @@ AR = 20.45
 r = 0.38
 
 denom_frac = 1 / ((1+0.03*t - 2*t**2)*u)
-e = 0.85
-#1 / (np.pi*AR*r*CD_min + denom_frac)
+e = 1 / (np.pi*AR*r*CD_min + denom_frac)
 rho = 1.225
 WL = 37.1 * 9.81 
 
@@ -51,8 +50,7 @@ plt.savefig('part1_drag_polar.png', dpi=300, bbox_inches='tight')
 CD_min2 = 0.0107343693
 WL2 = 352*9.81/8
 AR2 = 15
-e2 = .85
-# 1 / (np.pi*AR2*r*CD_min2 + denom_frac)
+e2 = 1 / (np.pi*AR2*r*CD_min2 + denom_frac)
 CL2 = WL2/(0.5*rho*V**2)
 
 CD2 = CD_min2 + (CL2**2)/(np.pi*AR2*e2)
@@ -137,6 +135,17 @@ plt.plot(
     label="Published ASW 19 - 37 kg/m²"
 )
 
+best_speed_1_kmh = V1[i_glide1] * 3.6
+best_sink_1 = sink1[i_glide1]
+plt.scatter(best_speed_1_kmh, best_sink_1, color='black', zorder=3)
+plt.annotate(
+    f'Best L/D = {best_L_D1:.2f}',
+    (best_speed_1_kmh, best_sink_1),
+    textcoords='offset points',
+    xytext=(8, 8),
+    fontsize=9,
+)
+
 plt.gca().yaxis.set_inverted(True)
 plt.xlabel("True airspeed, V (km/h)")
 plt.ylabel("Sink rate (m/s downward)")
@@ -146,7 +155,32 @@ plt.savefig("part1_speed_polar.png", dpi=300, bbox_inches="tight")
 plt.show(block=False)
 
 plt.figure(figsize=(10, 6))
+plt.plot(V1 * 3.6, sink1, label="Part 1: ASW-19 baseline", color="blue")
 plt.plot(V2 * 3.6, sink2, label="Part 2: S = 8 m², AR = 15", color="red")
+
+best_speed_1_kmh = V1[i_glide1] * 3.6
+best_sink_1 = sink1[i_glide1]
+best_speed_2_kmh = V2[i_glide2] * 3.6
+best_sink_2 = sink2[i_glide2]
+
+plt.scatter(best_speed_1_kmh, best_sink_1, color='black', zorder=3)
+plt.annotate(
+    f'Part 1 best L/D = {best_L_D1:.2f}',
+    (best_speed_1_kmh, best_sink_1),
+    textcoords='offset points',
+    xytext=(8, 8),
+    fontsize=9,
+)
+
+plt.scatter(best_speed_2_kmh, best_sink_2, color='black', zorder=3)
+plt.annotate(
+    f'Part 2 best L/D = {best_L_D2:.2f}',
+    (best_speed_2_kmh, best_sink_2),
+    textcoords='offset points',
+    xytext=(8, 8),
+    fontsize=9,
+)
+
 plt.gca().yaxis.set_inverted(True)
 plt.xlabel("True airspeed, V (km/h)")
 plt.ylabel("Sink rate (m/s downward)")
