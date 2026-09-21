@@ -10,8 +10,8 @@ close all;
 csvFile = 'comp_plane_sizing.csv';
 
 % Enter the row names exactly as they appear in the CSV.
-xParameter = "L/D";
-yParameter = "EWF";
+xParameter = "Range";
+yParameter = "Max Take-Off Weight [lb]";
 
 connectPoints = false;
 showAircraftNames = true;
@@ -104,6 +104,16 @@ else
 
 end
 
+ourPlanePoint = strcmpi(strtrim(namesPlot), "OUR PLANE");
+
+scatter( ...
+    xPlot(ourPlanePoint), ...
+    yPlot(ourPlanePoint), ...
+    140, ...
+    'red', ...
+    'filled', ...
+    'MarkerEdgeColor', 'black');
+
 
 %% LABEL EACH AIRCRAFT
 
@@ -143,7 +153,11 @@ title( ...
     yParameter + " versus " + xParameter, ...
     'Interpreter', 'none');
 
-set(gca, 'FontSize', 11);
+ylim([1e5, 1.7e5])
+
+axis square
+
+set(gca, 'FontSize', 16);
 
 hold off;
 
