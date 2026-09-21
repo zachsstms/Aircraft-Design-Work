@@ -1,12 +1,12 @@
 clc; clear all;
 
 % Inputs
-L_D = 11.1289;          % Lift-to-drag ratio
+L_D = 10.3;          % Lift-to-drag ratio
 V = 576.418603;           % Cruise speed [nm/hr]
 R_jet = 1500;      % Required range [nm]
-EWF = 0.56;        % Empty weight fraction, WE/WTO
+EWF = 0.58;        % Empty weight fraction, WE/WTO
 TSFC = 0.52;       % Thrust specific fuel consumption [1/hr]
-W_pl = 31160;      % Payload weight [lb]
+W_pl = 31775;      % Payload weight [lb]
 
 % Fuel weight fraction from the Breguet range equation
 Wf_Wto = 1 - exp((-R_jet * TSFC) / (L_D * V));
