@@ -1,0 +1,21 @@
+import aerosandbox as asb
+import aerosandbox.numpy as np
+import aerosandbox.tools.units as u
+
+# Initialize the Optimization Environment
+opti = asb.Opti()
+
+# Design Variables (Things IPOPT will change to find the optimum)
+W_TO = opti.variable(init_guess=5000)   # W_TO (N)
+S = opti.variable(init_guess=20)          # Wing Area ( m^2)
+Thrust = opti.variable(init_guess=1500)     # Max Thrust (N)
+W_to_S = W_TO / S                       # Wing Loading (W/S)
+T_to_W = Thrust / W_TO                  # Thrust-to-Weight Ratio (T/W)
+
+
+# Requirements
+Range_req=400 # in nmi
+Range = opti.parameter(value=Range_req*(u.m/u.nmi))      # convert to meters [m]
+TSFC  = opti.parameter(value=0.6 / u.hour)  # thrust-specific fuel consumption [1/s]
+V_min = opti.parameter(value=25)          # takeoff / landing speed limit [m/s]
+W_0   = opti.parameter(value=6250)        # fixed weight: everything but wing & fuel [N]
