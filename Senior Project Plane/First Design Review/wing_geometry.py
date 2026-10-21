@@ -14,8 +14,8 @@ import numpy as np
 
 S = 600 #ft^2
 
-# assume 0.55 for now, from gudmundsson book for atr
-taper_ratio = 0.55
+# assume 0.5 for dash 8
+taper_ratio = 0.5
 
 # can decide sweep later, assume no additional sweep
 # assume the datum is at the front center of aircraft, so the root chord is at y = 0 and the tip chord is at y = +/- b/2
