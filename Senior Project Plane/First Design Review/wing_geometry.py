@@ -25,14 +25,24 @@ def trapezoidal_wing_geometry(AR, S, taper_ratio):
     b = (AR * S) ** 0.5
     C_root = (2*S) / (b * (1 + taper_ratio))
     C_tip = C_root * taper_ratio
-    initial_sweep = np.deg2rad(np.atan((C_root-C_tip) * (b/2))) # just the sweep you get from a traditional trapezoidal wing, not the leading edge sweep, which is a design choice
+    initial_sweep = np.atan((C_root - C_tip) / (b / 2)) # sweep caused by taper, not an additional design sweep
     C_bar = (2/3) * C_root * ((1 + taper_ratio + taper_ratio**2) / (1 + taper_ratio)) # also MGC in gudmunsson book
     Y_bar = (b / 6) * ((1 + 2*taper_ratio) / (1 + taper_ratio))
-    X_bar = Y_bar*np.tan(np.deg2rad(initial_sweep)) + datumX  # Assuming 0 degrees of sweep, this is from the datum to the leading 
+    X_bar = Y_bar * np.tan(initial_sweep) + datumX  # initial_sweep is already in radians
     
-    return b, C_root, C_tip, C_bar, Y_bar, X_bar, initial_sweep
+    return b, C_root, C_tip, C_bar, Y_bar, float(X_bar), np.rad2deg(float(initial_sweep))
 
-stuff = trapezoidal_wing_geometry(AR=10, S=S, taper_ratio=0.55)
-print("b, C_root, C_tip, C_bar, Y_bar, X_bar, initial_sweep:", stuff)
+b, C_root, C_tip, C_bar, Y_bar, X_bar, initial_sweep = (
+    trapezoidal_wing_geometry(AR=10, S=S, taper_ratio=taper_ratio)
+)
+
+print(f"Span (b): {b:.3f} ft")
+print(f"Root chord (C_root): {C_root:.3f} ft")
+print(f"Tip chord (C_tip): {C_tip:.3f} ft")
+print(f"Mean aerodynamic chord (C_bar): {C_bar:.3f} ft")
+print(f"MAC spanwise location (Y_bar): {Y_bar:.3f} ft")
+print(f"MAC longitudinal location (X_bar): {X_bar:.3f} ft")
+print(f"Leading edge sweep: {initial_sweep:.6f} degrees")
+
 
 
