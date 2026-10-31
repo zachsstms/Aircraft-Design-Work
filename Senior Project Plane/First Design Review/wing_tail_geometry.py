@@ -12,7 +12,7 @@ import numpy as np
 # Y_bar = spanwise location of MAC starting from the root chord/datum
 # X_bar = longitudinal location of MAC starting from the datum
 
-S_wing = 471.3 #ft^2
+S_wing = 731.5 #ft^2
 
 # assume 0.5 for dash 8
 taper_ratio = 0.5 # assumed
