@@ -68,7 +68,7 @@ def horizontal_tail_geometry(V_ht, AR_ht, l_ht, taper_ratio_ht):
 def vertical_tail_geometry(V_vt, AR_vt, l_vt, taper_ratio_vt):
     # assume conventional tail (trapezoidal) with no additional sweep
     # can either solve for S_vt or l_vt, will solve for S_vt since we want more control over length
-    S_vt = V_vt * S_wing * C_bar / l_vt
+    S_vt = V_vt * S_wing * b / l_vt
     b_vt = (AR_vt * S_vt) ** 0.5
     C_root_vt = (2*S_vt) / (b_vt * (1 + taper_ratio_vt))
     C_tip_vt = C_root_vt * taper_ratio_vt
