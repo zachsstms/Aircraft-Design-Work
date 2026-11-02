@@ -321,3 +321,7 @@ fig.tight_layout()
 plt.show()
 
 print(f"CDmin = {CDmin:.5f}")
+
+
+print(f"Max L/D = {np.max(CL/CD)}")
+
