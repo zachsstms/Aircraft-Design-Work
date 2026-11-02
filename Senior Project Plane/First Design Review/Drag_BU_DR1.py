@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import warnings
 from types import SimpleNamespace
+from ambiance import Atmosphere
 
 # Gudmundsson component drag buildup / preliminary drag polar method
 
@@ -76,35 +77,26 @@ formFactor = SimpleNamespace(
 )
 
 # 4. Standard-atmosphere state and Reynolds numbers
-g0 = 9.80665
-Rair = 287
-gamma = 1.4
-Tsl = 288
-psl = 101325
-lapse = 0.0065
-
 alt_m = flight.altitude_ft * 0.3048
 
-if alt_m < 0 or alt_m > 11000:
+# `ambiance` supplies ISA properties in SI units.
+# Its values are one-element arrays for a scalar altitude.
+try:
+    atmosphere = Atmosphere(alt_m)
+except ValueError as exc:
     raise ValueError(
-        "This script's ISA calculation is set up only for 0–11 km altitude."
-    )
+        f"Altitude {flight.altitude_ft:g} ft is outside ambiance's supported range."
+    ) from exc
 
-T = Tsl - lapse * alt_m
-p = psl * (T / Tsl)**(g0 / (Rair * lapse))
-rho = p / (Rair * T)
+T = atmosphere.temperature.item()         # K
+p = atmosphere.pressure.item()            # Pa
+rho = atmosphere.density.item()           # kg/m^3
+mu = atmosphere.dynamic_viscosity.item()  # Pa·s
+a = atmosphere.speed_of_sound.item()      # m/s
 
 V = flight.TAS_kts * 0.514444
-a = np.sqrt(gamma * Rair * T)
 Mach = V / a
 q = 0.5 * rho * V**2
-
-# Sutherland viscosity relation
-muRef = 1.716e-5
-Tref = 273.15
-Suth = 110.4
-
-mu = muRef * (T / Tref)**1.5 * (Tref + Suth) / (T + Suth)
 
 component = [
     "Wing",
