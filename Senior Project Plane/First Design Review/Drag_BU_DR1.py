@@ -8,7 +8,7 @@ from types import SimpleNamespace
 # 1. Flight condition and reference aircraft
 flight = SimpleNamespace(
     altitude_ft=20000,
-    TAS_kts=337.75,
+    TAS_kts=294.871,
     weight_lbf=48000,  # Provisional; only used for cruise marker
 )
 
@@ -313,7 +313,6 @@ ax.plot(
 ax.grid(True)
 ax.set_xlabel(r"$C_D$")
 ax.set_ylabel(r"$C_L$")
-ax.set_title("Saab 340B preliminary clean-cruise drag polar")
 ax.legend(loc="best")
 fig.tight_layout()
 
@@ -325,7 +324,6 @@ plt.setp(ax.get_xticklabels(), rotation=20, ha="right")
 ax.grid(True, axis="y")
 ax.set_axisbelow(True)
 ax.set_ylabel(r"Contribution to $C_D$ (based on common $S_{\mathrm{ref}}$)")
-ax.set_title("Preliminary component drag contributions")
 fig.tight_layout()
 
 plt.show()
