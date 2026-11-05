@@ -40,7 +40,6 @@ b, C_root, C_tip, C_bar, Y_bar, X_bar, initial_sweep = (
 # taper_ratio_ht = horizontal tail taper ratio
 # l_ht = horizontal tail length (distance from wing mac to aerodynamic center of horizontal tail)
 
-
 AR_ht = 4.4
 V_ht = 0.914
 taper_ratio_ht = 0.462
