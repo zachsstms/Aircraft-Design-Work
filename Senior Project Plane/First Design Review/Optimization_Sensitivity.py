@@ -24,6 +24,18 @@ import aerosandbox.numpy as np
 import casadi as cas
 import matplotlib.pyplot as plt
 
+plt.rcParams.update({
+    "font.family": "serif",
+    "font.serif": ["STIX Two Text", "Times New Roman", "DejaVu Serif"],
+    "mathtext.fontset": "stix",
+    "font.size": 18,
+    "axes.labelsize": 18,
+    "legend.fontsize": 18,
+    "xtick.labelsize": 18,
+    "ytick.labelsize": 18,
+    "axes.linewidth": 0.8,
+})
+
 
 # Unit conversions used only at the model boundary.
 LBF_TO_N = 4.4482216152605
@@ -357,15 +369,39 @@ def plot_adjoint_sensitivities(
     objective_label: str = r"Parameter Sensitivity $\frac{\text{d}\ln(P^*)}{\text{d}\ln(p)}$  [-]",
 ) -> None:
     """Draw a signed local-sensitivity (tornado) chart."""
-    names, values = zip(*sorted(sensitivities.items(), key=lambda item: abs(item[1])))
+    
+    excluded_parameters = {
+        "Takeoff density ratio",
+        "TO thrust-to-power factor",
+        "TO power lapse",
+        "Landing CLmax",
+        "Landing distance",
+        "Cruise weight fraction",
+        "Landing weight fraction",
+        "MTOW",
+        "Cruise power lapse",
+    }
+    
+    displayed_sensitivities = {
+        name: value
+        for name, value in sensitivities.items()
+        if name not in excluded_parameters
+    }
+    names, values = zip(*sorted(
+        displayed_sensitivities.items(),
+        key=lambda item: abs(item[1]),
+    ))
+
     colors = ["tab:red" if value > 0 else "tab:blue" for value in values]
     x_limit = 1.15 * max(abs(value) for value in values)
+
     fig, ax = plt.subplots(
-        figsize=(7, 5.2),
+        figsize=(13, 6),
         dpi=300,
         constrained_layout=True,
     )
     ax.barh(names, values, color=colors, height=0.65)
+
     for i, value in enumerate(values):
         offset = 0.03 * x_limit
         ax.text(
@@ -374,11 +410,11 @@ def plot_adjoint_sensitivities(
             f"{value:+.2f}",
             va="center",
             ha="left" if value > 0 else "right",
-            fontsize=8,
+            fontsize=18,
         )
 
     ax.axvline(0, color="0.35", lw=0.8)
-    ax.set_xlim(-x_limit, x_limit+1)
+    ax.set_xlim(-x_limit-0.1, x_limit)
     ax.set_xlabel(objective_label)
     ax.grid(True, axis="x", alpha=0.25)
     plt.savefig("Sensitivities", dpi=300)
