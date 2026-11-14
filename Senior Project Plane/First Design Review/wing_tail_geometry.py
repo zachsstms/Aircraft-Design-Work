@@ -41,11 +41,11 @@ b, C_root, C_tip, C_bar, Y_bar, X_bar, initial_sweep = (
 # l_ht = horizontal tail length (distance from wing mac to aerodynamic center of horizontal tail)
 
 AR_ht = 4.4
-V_ht = 0.914
+V_ht = 1.2
 taper_ratio_ht = 0.462
-l_ht = 40.47 # ft (can change this to anything, but this is just avg from comp ass)
+l_ht = 39 # ft (can change this to anything, but this is just avg from comp ass)
 AR_vt = 1.766
-V_vt = 0.0934
+V_vt = 0.13
 taper_ratio_vt = 0.463
 l_vt = l_ht # ft 
 
