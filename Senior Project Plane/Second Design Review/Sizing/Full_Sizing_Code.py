@@ -24,10 +24,10 @@ from ambiance import Atmosphere
 # SHARED INPUTS: change aircraft and mission assumptions here.
 inputs = NS(
     MTOW_lbf=50319,
-    AR=9.0,
+    AR=11.50,
     e=0.85,
-    M_cruise=0.55,
-    cruise_altitude_ft=28000.0,
+    M_cruise=0.48,
+    cruise_altitude_ft=20000.0,
     CD0_constraint=0.020,       # Initial guess; updated by the convergence loop
     eta_prop_cruise=0.90,
     alpha_power_cruise=1.0,    # Available cruise power / installed sea-level power
