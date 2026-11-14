@@ -292,11 +292,12 @@ ax.plot(
     label="Component-build-up polar",
 )
 
-idx = np.argmax(CL / CD)
-CL_best = CL[idx]
-CD_best = CD[idx]
+LDcruise = CLcruise / CDcruise
 
-ax.plot(CD_best, CL_best, "ko", label="Max L/D point")
+ax.plot(
+    CDcruise, CLcruise, "ro",
+    label=f"Cruise L/D = {LDcruise:.2f}",
+)
 
 ax.grid(True)
 ax.set_xlabel(r"$C_D$")
@@ -317,4 +318,4 @@ fig.tight_layout()
 plt.show()
 
 print(f"CDmin = {CDmin:.5f}")
-print(f"Max L/D = {np.max(CL/CD)}")
+print(f"Cruise L/D = {LDcruise:.2f}")
