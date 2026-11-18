@@ -12,6 +12,18 @@ import numpy as np
 # Y_bar = spanwise location of MAC starting from the root chord/datum
 # X_bar = longitudinal location of MAC starting from the datum
 
+"""
+This code takes S, AR, taper ratio as inputs to calculate geometries.
+Competitive assessment values are these:
+AR_ht = 4.4
+V_ht = 1.2
+taper_ratio_ht = 0.462
+l_ht = 39 # ft 
+AR_vt = 1.766
+V_vt = 0.13
+taper_ratio_vt = 0.463
+l_vt = l_ht # ft 
+"""
 S_wing = 731.5 #ft^2
 
 # assume 0.5 for dash 8
