@@ -56,7 +56,38 @@ def constraint_diagram(MTOW, C_D0, AR, e, M_cruise,
     (q_cruise*C_D0/W_S +(k*(W_S/q_cruise)*beta_cruise**2)) # the 550 is to get horsepower
     )
 
+  #----------------------------------------------------------------------------------------------
+# TAKEOFF CONSTRAINT DIAGRAM LINE
+# NOTES: Takeoff efficiency imbedded in reference values (constant of 1.5334) 
+#ROSAKM PART 23 Correlation
 
+s_TOFL_required = 4500 #ft; requirement field length
+sigma_TO = 1.0 # assuming sea level, standard day condtions
+C_L_max_TO = 2.0 # Roskam pg 91; aggressive higher end typical value
+
+S_TOG = s_TOFL_required/1.5334 # based on fig 3.4 and eqn 3.5 Roskam; constant from only dual prop references
+
+# Solve: 0.009*TOP_23**2 + 4.9*TOP_23 - S_TOG = 0 (eqn 3.4)
+a = 0.009
+b = 4.9
+c = -S_TOG
+
+TOP_23 = (-b + math.sqrt(b**2 - 4*a*c)) / (2*a)  #import math; download scipi or skippy to run find zero solution
+
+P_W_takeoff = 1/((TOP_23 * sigma_TO * C_L_max_TO) / W_S) #fit P_W_TO to wing loading sweep 
+#------------------------------------------------------------------------------------------------------------------
+
+# LANDING CONSTRAIN DIAGRAM LINE PART 23 ROSKAM
+S_L = 3500; #ft; landing distance requirement
+V_SL = np.sqrt(S_L / 0.5316) # stall speed (kts) from eqn 3.14 
+V_SL = V_SL * 1.68781 # convert kt to ft/sec
+C_L_max_L = 2.5 # pg 91 roskam; agressive typical value for prop
+
+W_S_landing = (0.5 * rho_sl * V_SL**2 * C_L_max_L )*(1/0.95) #landing wing loading constraint; 0.95 comes from assumptioption landing weight = 0.95 takeoff weight mentioned pg 111
+W_S_landing = float(np.squeeze(W_S_landing))
+print(f"W_S_landing: {W_S_landing}")
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     return W_S, # P_W, P, S
 
