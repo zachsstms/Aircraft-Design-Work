@@ -33,7 +33,7 @@ def CDminFunct(Mach, Altitude, Fuselage, Wing, Tail):
     Tail.Cf = get_Cf(Mach, Altitude, Tail.Mac)
 
     ## Wet Area Calculation ##
-    Fuselage.WetArea = np.pi * Fuselage.Diameter * Fuselage.Mac
+    Fuselage.WetArea = np.pi * Fuselage.Diameter * Fuselage.Length
     Wing.WetArea = 2 * Wing.Span * Wing.Mac
     Tail.WetArea = 2 * Tail.Span * Tail.Mac
 
