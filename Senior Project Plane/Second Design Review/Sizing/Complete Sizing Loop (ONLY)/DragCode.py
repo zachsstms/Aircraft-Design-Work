@@ -49,9 +49,12 @@ def CDminFunct(Mach, Altitude, Fuselage, Wing, Tail):
     ## Referance Area (Wing Area) ##
     Sref = Wing.Area
 
+    ## Crud Factor ## (From Book, cant find which page rn)
+    crudFactor = 1.25
+
     ## CDmin ##
-    CDmin = (Fuselage.Cf * Fuselage.FormFactor * Fuselage.InterferenceFactor * (Fuselage.WetArea / Sref)) + \
+    CDmin = crudFactor * ((Fuselage.Cf * Fuselage.FormFactor * Fuselage.InterferenceFactor * (Fuselage.WetArea / Sref)) + \
             (Wing.Cf * Wing.FormFactor * Wing.InterferenceFactor * (Wing.WetArea / Sref)) + \
-            (Tail.Cf * Tail.FormFactor * Tail.InterferenceFactor * (Tail.WetArea / Sref))
+            (Tail.Cf * Tail.FormFactor * Tail.InterferenceFactor * (Tail.WetArea / Sref)))
 
     return CDmin
