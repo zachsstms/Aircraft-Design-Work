@@ -28,7 +28,7 @@ def MTOW_convergence(MTOW_guess, EWF_initial, L_D_cruise, fuel_weight_fraction, 
     #run the sizing convergence loop
     while difference>0.001:
         MTOW_guess=MTOW_new
-        W_empty=MTOW_guess*EWF_initial
+        W_empty=0.96*MTOW_guess**(-0.05) # empirical relationship from Raymer
         W_fuel=MTOW_guess*fuel_weight_fraction
         MTOW_new=W_empty+W_fuel+Payload_weight
         difference=np.abs(MTOW_new-MTOW_guess)/MTOW_guess
