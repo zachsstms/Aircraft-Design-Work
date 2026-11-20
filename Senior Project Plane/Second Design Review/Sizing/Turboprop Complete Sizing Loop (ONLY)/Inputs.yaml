@@ -1,7 +1,0 @@
-# This code is where all of the inputs for the sizing is stored
-
-tolerance = 0.01 # percentage, tolerance for the sizing loop
-
-
-
-
