@@ -32,7 +32,7 @@ from ambiance import Atmosphere
 import pint
 ureg = pint.UnitRegistry()
 
-def constraint_diagram(MTOW, C_D0, AR, e, M_cruise, 
+def constraint_analysis(MTOW, C_D0, AR, e, M_cruise, 
                        cruise_alt, landing_distance, landing_altitude,
                        takeoff_distance, takeoff_altitude, CL_max_TO,eta_p_cruise,k,beta_cruise):
     
