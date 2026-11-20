@@ -34,6 +34,8 @@ Cl = np.linspace(0, 2.5, 250)
 
 
 
+
+
 [Fuselage, Wing, HorizontalTail, VerticalTail] = planeGeometry(Wing)
 [CDmin, CDtotal, Cl_Cd_cruise, Wing, Fuselage, HorizontalTail, VerticalTail] = CDminFunct(mach, cruiseAltitude, cruiseWeight, Fuselage, Wing, HorizontalTail, VerticalTail)
 
