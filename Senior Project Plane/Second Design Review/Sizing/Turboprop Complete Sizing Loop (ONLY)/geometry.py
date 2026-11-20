@@ -14,7 +14,7 @@ from types import SimpleNamespace
 # X_bar = longitudinal location of MAC starting from the datum
 
 
-def planeGeometry(AR, S, taper_ratio):
+def planeGeometry(Wing):
 
     '''
     This function needs inputs of the aspect ratio, wing area, and wing taper ratio.
@@ -24,35 +24,18 @@ def planeGeometry(AR, S, taper_ratio):
 
     ## Creating Classes ##
     Fuselage = SimpleNamespace()
-    Wing = SimpleNamespace()
     HorizontalTail = SimpleNamespace()
     VerticalTail = SimpleNamespace()
 
-    Fuselage.Length = 81 # ft (can change this to anything, but this is just avg from comp ass)
-    Fuselage.Diameter = 9 # ft (can change this to anything, but this is just avg from comp ass)
-
-    Wing.Area = S
-
-    ## Constants ## (From Competitive Assessment)
-    HorizontalTail.AspectRatio = 4.4
-    HorizontalTail.V = 1.2
-    HorizontalTail.taper_ratio = 0.462
-    HorizontalTail.Length = 39 # ft (can change this to anything, but this is just avg from comp ass)
-    VerticalTail.AspectRatio = 1.766
-    VerticalTail.V = 0.13
-    VerticalTail.taper_ratio = 0.463
-    VerticalTail.Length = HorizontalTail.Length # ft
-
     ## Trapezoidal wing geometry calculations ##
-    Wing.Span = (AR * S) ** 0.5
-    Wing.C_root = (2*S) / (Wing.Span * (1 + taper_ratio))
-    Wing.C_tip = Wing.C_root * taper_ratio
+    Wing.Span = (Wing.AspectRatio * Wing.Area) ** 0.5
+    Wing.C_root = (2*Wing.Area) / (Wing.Span * (1 + Wing.taper_ratio))
+    Wing.C_tip = Wing.C_root * Wing.taper_ratio
     Wing.initial_sweep = np.atan((Wing.C_root - Wing.C_tip) / (Wing.Span / 2)) # sweep caused by taper, not an additional design sweep
-    Wing.Mac = (2/3) * Wing.C_root * ((1 + taper_ratio + taper_ratio**2) / (1 + taper_ratio)) # also MGC in gudmunsson book
-    Wing.Y_bar = (Wing.Span / 6) * ((1 + 2*taper_ratio) / (1 + taper_ratio))
+    Wing.Mac = (2/3) * Wing.C_root * ((1 + Wing.taper_ratio + Wing.taper_ratio**2) / (1 + Wing.taper_ratio)) # also MGC in gudmunsson book
+    Wing.Y_bar = (Wing.Span / 6) * ((1 + 2*Wing.taper_ratio) / (1 + Wing.taper_ratio))
     Wing.X_bar = Wing.Y_bar * np.tan(Wing.initial_sweep)  # initial_sweep is already in radians , can either be from the leading edge of the wing or front of plane, this is leading edge
-    Wing.AspectRatio = AR
-    
+
     ## Horizontal Tail Geometry Calculations ##
     HorizontalTail.Area = HorizontalTail.V * Wing.Area * Wing.Mac / HorizontalTail.Length
     HorizontalTail.Span = (HorizontalTail.AspectRatio * HorizontalTail.Area) ** 0.5
