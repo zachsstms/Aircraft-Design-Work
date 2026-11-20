@@ -2,7 +2,7 @@ import numpy as np
 from ambiance import Atmosphere
 
 '''
-    Needs to use SimpleNamespace for Fuselage, Wing, and Tail inputs. Needs Mach and Altitude inputs as well.
+    Needs to use SimpleNamespace for Fuselage, Wing, and Tail inputs. Needs Mach, Altitude, and Cruise Weight inputs as well.
 
     Fuselage Needs: Fuselage.Length, Fuselage.Diameter
     Wing Needs: Wing.tc, Wing.xc, Wing.Sweep, Wing.Mac, Wing.Span, Wing.Area
@@ -11,7 +11,7 @@ from ambiance import Atmosphere
     Outputs CDmin.
 '''
 
-def CDminFunct(Mach, Altitude, Fuselage, Wing, Tail):
+def CDminFunct(Mach, Altitude, cruiseWeight, Fuselage, Wing, Tail):
 
     def get_Cf(Mach, altitude, length):
         density_SI = Atmosphere(altitude).density[0]  # kg/m^3
@@ -57,4 +57,13 @@ def CDminFunct(Mach, Altitude, Fuselage, Wing, Tail):
             (Wing.Cf * Wing.FormFactor * Wing.InterferenceFactor * (Wing.WetArea / Sref)) + \
             (Tail.Cf * Tail.FormFactor * Tail.InterferenceFactor * (Tail.WetArea / Sref)))
 
-    return CDmin
+    Cl = np.linspace(0, 2.5, 250)
+    CdTotal = CDmin + ((Cl**2) / (np.pi * Wing.AspectRatio * Wing.OswaldEfficiency))
+
+    Cl_cruise = cruiseWeight / (0.5 * (Atmosphere(Altitude).density[0] * 0.062428) * (Mach * (Atmosphere(Altitude).speed_of_sound[0] / 0.3048)**2) * Sref)
+    Cd_cruise = CDmin + ((Cl_cruise**2) / (np.pi * Wing.AspectRatio * Wing.OswaldEfficiency))
+
+    Cl_Cd_cruise = Cl_cruise / Cd_cruise
+
+
+    return CDmin, CdTotal, Cl_Cd_cruise
