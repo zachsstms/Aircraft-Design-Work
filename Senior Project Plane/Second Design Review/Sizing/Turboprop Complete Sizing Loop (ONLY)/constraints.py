@@ -63,6 +63,7 @@ def constraint_analysis(MTOW, C_D0, AR, e, M_cruise,
     #ROSAKM PART 23 Correlation
     
     sigma_TO = 1.0 # assuming sea level, standard day condtions
+    takeoff_distance = 4500 # ft 
     S_TOG = takeoff_distance/1.5334 # based on fig 3.4 and eqn 3.5 Roskam; constant from only dual prop references
     CL_max_TO=1.7
 
