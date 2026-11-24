@@ -64,6 +64,7 @@ def constraint_analysis(MTOW, C_D0, AR, e, M_cruise,
     
     sigma_TO = 1.0 # assuming sea level, standard day condtions
     S_TOG = takeoff_distance/1.5334 # based on fig 3.4 and eqn 3.5 Roskam; constant from only dual prop references
+    CL_max_TO=1.7
 
     # Solve: 0.009*TOP_23**2 + 4.9*TOP_23 - S_TOG = 0 (eqn 3.4)
     a = 0.009
@@ -71,6 +72,7 @@ def constraint_analysis(MTOW, C_D0, AR, e, M_cruise,
     c = -S_TOG
 
     TOP_23 = (-b + np.sqrt(b**2 - 4*a*c)) / (2*a)  
+                         
 
     P_W_takeoff = 1/((TOP_23 * sigma_TO * CL_max_TO) / W_S) #fit P_W_TO to wing loading sweep 
     #-------------------------------
