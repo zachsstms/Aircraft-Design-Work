@@ -1,5 +1,7 @@
 import numpy as np
 from ambiance import Atmosphere
+import pint
+ureg = pint.UnitRegistry()
 
 '''
     Needs to use SimpleNamespace for Fuselage, Wing, and Tail inputs. Needs Mach, Altitude, and Cruise Weight inputs as well.
@@ -14,15 +16,17 @@ from ambiance import Atmosphere
 
 def CDminFunct(Mach, Altitude, cruiseWeight, Fuselage, Wing, HorizontalTail, VerticalTail):
 
-    def get_Cf(Mach, altitude, length):
-        density_SI = Atmosphere(altitude).density[0]  # kg/m^3
-        density = density_SI * 0.062428  # kg/m^3 to lb/ft^3
-        viscosity_SI = Atmosphere(altitude).dynamic_viscosity[0]  # Pa
-        viscosity = viscosity_SI * 0.020885  # Pa*s to lb/(ft*s)
-        velocity = Mach * Atmosphere(altitude).speed_of_sound[0]
+    def get_Cf(Mach, Altitude, length): # provide altitude, length in ft. 
+        alt_m = Altitude.to("meters").magnitude
+        atm = Atmosphere(alt_m) # convert the altitude to meters for the Atmosphere tool
+        density = (atm.density[0] * ureg("kg/m^3")).to("slug/ft^3").magnitude # kg/m^3 to slug/ft^3
+        viscosity = (atm.dynamic_viscosity[0] * ureg("Pa * s")).to("slug/(ft*s)").magnitude # Pa*s to slug/(ft*s)
+        velocity = (Mach * atm.speed_of_sound[0] * ureg("m/s")).to("ft/s").magnitude # m/s to ft/s
+
         Re = (density * velocity * length) / viscosity
         Cf = 0.455 / (np.log10(Re)**2.58)
         return Cf
+
 
     ## Fuselage FF and IF ## (16-135 book reference)
     Fuselage.FinenessRatio = Fuselage.Length / Fuselage.Diameter
