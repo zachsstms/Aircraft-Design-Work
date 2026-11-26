@@ -11,7 +11,7 @@ ureg = pint.UnitRegistry()
     HorizontalTail Needs: HorizontalTail.tc, HorizontalTail.SweepMidChord, HorizontalTail.Mac, HorizontalTail.Span
     VerticalTail Needs: VerticalTail.tc, VerticalTail.SweepMidChord, VerticalTail.Mac, VerticalTail.Span
 
-    Outputs CDmin.
+    Outputs CDmin, L/D, drag polar
 '''
 
 def CDminFunct(Mach, Altitude, cruiseWeight, Fuselage, Wing, HorizontalTail, VerticalTail, plot=False):

@@ -49,7 +49,7 @@ def MTOW_convergence(MTOW_guess,
     else:
         raise RuntimeError("MTOW did not converge within 500 mission iterations.")
 
-    W_empty = MTOW_new * (0.96 * MTOW_new**(-0.05))
+    W_empty = MTOW_new * (0.96 * MTOW_new**(-0.05)) # empirical equation from Raymer
     W_fuel = MTOW_new * fuel_weight_fraction
     # Start and end of cruise include the preceding takeoff and climb burns.
     start_cruise_weight = takeoff_weight_fraction * climb_weight_fraction * MTOW_new # weight at the start of cruise
