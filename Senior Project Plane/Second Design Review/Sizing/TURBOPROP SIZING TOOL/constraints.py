@@ -7,7 +7,6 @@ MTOW
 C_D0
 AR
 e
-0.85
 M_cruise
 cruise alt
 landing distance

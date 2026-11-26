@@ -25,55 +25,55 @@ ureg = pint.UnitRegistry() # handles units robustly
 #   altitudes: ft, converted to meters for Atmosphere
 
 Fuselage = SimpleNamespace(
-    Length=81.0,       # ft
+    Length=87,       # ft
     Diameter=9.0,      # ft
 )
 
 Wing = SimpleNamespace(
-    AspectRatio=None,          # dimensionless
-    taper_ratio=None,          # dimensionless
-    OswaldEfficiency=None,     # dimensionless
-    tc=None,                   # thickness/chord ratio
-    xc=None,                   # location of max thickness / chord
-    Sweep=None,                # radians; value expected by aerodynamics.py
+    AspectRatio=11,          # dimensionless
+    taper_ratio=0.5,          # dimensionless
+    OswaldEfficiency=0.85,     # dimensionless
+    tc=0.15,                   # thickness/chord ratio
+    xc=0.35,                   # location of max thickness / chord
+    Sweep=0,                # radians; value expected by aerodynamics.py
 )
 
 HorizontalTail = SimpleNamespace(
-    AspectRatio=4.4,           # aspect ratio of horizontal tail
+    AspectRatio=4.7,           # aspect ratio of horizontal tail
     V=1.2,                     # dimensionless tail volume coefficient
     taper_ratio=0.462,         # taper ratio of horizontal tail
     Length=39.0,               # ft
-    tc=None,                   # thickness/chord ratio
-    SweepMidChord=None,        # radians
+    tc=0.09,                   # thickness/chord ratio
+    SweepMidChord=0,        # radians
 )
 
 VerticalTail = SimpleNamespace(
-    AspectRatio=1.766,         # aspect ratio of vertical tail
+    AspectRatio=1.33,         # aspect ratio of vertical tail
     V=0.13,                    # dimensionless tail volume coefficient
     taper_ratio=0.463,         # taper ratio of vertical tail
     Length=39.0,               # ft
-    tc=None,                   # thickness/chord ratio
-    SweepMidChord=None,        # radians
+    tc=0.09,                   # thickness/chord ratio
+    SweepMidChord=0,        # radians
 )
 
 # Mission and operating inputs
-mach = None                    # dimensionless
+mach = 0.48                   # dimensionless
 cruise_altitude = 20_000 * ureg.ft
 
-Range = None                   # nmi
-BSFC = None                    # lb/(hp*hr)
-eta_p_cruise = None            # propeller efficiency; dimensionless
-Payload_weight = None          # lbf
+Range = 825                   # nmi
+BSFC = 0.476                   # lb/(hp*hr), NOTE: Based off the PW127XT-M engine
+eta_p_cruise = 0.9            # propeller efficiency; dimensionless
+Payload_weight = 69*250        # lbf
 
 # Constraint inputs
-landing_distance = None        # ft; empirical correlation input
-landing_altitude = None        # altitude quantity
-takeoff_distance = None        # ft; empirical correlation input
-takeoff_altitude = None        # altitude quantity
+landing_distance = 3500        # ft; empirical correlation input
+landing_altitude = 0        # altitude quantity
+takeoff_distance = 4500        # ft; empirical correlation input
+takeoff_altitude = 0        # altitude quantity
 # sigma_TO = None              # takeoff density ratio; dimensionless (moved to solver.py)
-CL_max_TO = None               # dimensionless
-CL_max_L = None                # dimensionless
-alpha_P_cruise = None          # cruise power correction; dimensionless
+CL_max_TO = 2               # dimensionless
+CL_max_L = 2.5                # dimensionless
+alpha_P_cruise = 1          # cruise power correction; dimensionless, NOTE: this represents the power loss as the engine climbs in altitude
 #------------------------------------------------------------------------------------------------------------
 
 
