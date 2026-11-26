@@ -30,7 +30,7 @@ Fuselage = SimpleNamespace(
 )
 
 Wing = SimpleNamespace(
-    AspectRatio=11,          # dimensionless
+    AspectRatio=12,          # dimensionless
     taper_ratio=0.5,          # dimensionless
     OswaldEfficiency=0.85,     # dimensionless
     tc=0.15,                   # thickness/chord ratio
@@ -62,14 +62,14 @@ cruise_altitude = 20_000 * ureg.ft
 
 Range = 825                   # nmi
 BSFC = 0.476                   # lb/(hp*hr), NOTE: Based off the PW127XT-M engine
-eta_p_cruise = 0.9            # propeller efficiency; dimensionless
+eta_p_cruise = 0.85            # propeller efficiency; dimensionless
 Payload_weight = 69*250        # lbf
 
 # Constraint inputs
 landing_distance = 3500        # ft; empirical correlation input
-landing_altitude = 0        # altitude quantity
+landing_altitude = 0*ureg.ft        # altitude quantity
 takeoff_distance = 4500        # ft; empirical correlation input
-takeoff_altitude = 0        # altitude quantity
+takeoff_altitude = 0*ureg.ft        # altitude quantity
 # sigma_TO = None              # takeoff density ratio; dimensionless (moved to solver.py)
 CL_max_TO = 2               # dimensionless
 CL_max_L = 2.5                # dimensionless
@@ -153,3 +153,26 @@ if __name__ == "__main__":
     print(f"MTOW = {result['MTOW']:,.1f} lbf, S = {result['S']:,.1f} ft^2")
     print(f"Installed power = {result['constraints']['P_design']:,.1f} shp")
     print(f"Cruise L/D = {result['L_D']:.2f}, CD0 = {result['CD0']:.5f}")
+    
+    from ambiance import Atmosphere
+
+    fuselage, wing, horizontal_tail, vertical_tail = result["geometry"]
+
+    atmosphere = Atmosphere(cruise_altitude.to("meters").magnitude)
+    density = (atmosphere.density[0] * ureg("kg/m^3")).to("slug/ft^3").magnitude
+    velocity = (mach * atmosphere.speed_of_sound[0] * ureg("m/s")).to("ft/s").magnitude
+    q_cruise = 0.5 * density * velocity**2
+
+    cl_cruise = result["cruise_weight"] / (q_cruise * wing.Area)
+    k = 1 / (math.pi * wing.AspectRatio * wing.OswaldEfficiency)
+    cd_induced = k * cl_cruise**2
+    cl_max_ld = math.sqrt(result["CD0"] / k)
+    max_ld = 1 / (2 * math.sqrt(result["CD0"] * k))
+
+    print(f"Cruise CL = {cl_cruise:.3f}")
+    print(f"Cruise induced CD = {cd_induced:.5f}")
+    print(f"Polar maximum L/D = {max_ld:.2f} at CL = {cl_max_ld:.3f}")
+    print(f"Wing span = {wing.Span:.1f} ft")
+    print(f"Horizontal tail area = {horizontal_tail.Area:.1f} ft^2")
+    print(f"Vertical tail area = {vertical_tail.Area:.1f} ft^2")
+    print(f"Fuel Weight Fraction = {result['fuel_weight'] / result['MTOW']:.4f}")

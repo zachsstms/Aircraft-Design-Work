@@ -80,24 +80,21 @@ def landing_constraint(landing_distance, rho_landing, CL_max_L, takeoff_weight_f
 
 # need to find the design points
 def design_point(W_S, W_S_landing, P_W_cruise, P_W_takeoff, MTOW):
+    # Select the highest wing loading allowed by the landing constraint.
     feasible = W_S <= W_S_landing
     if not np.any(feasible):
         raise ValueError("Landing constraint lies outside the W/S grid.")
-    # power requirement
-    P_W_required = np.maximum.reduce([
-        P_W_cruise,
-        P_W_takeoff,
-    ])
-    # min power is the current FOM
-    P_W_feasible = np.where(feasible, P_W_required, np.inf)
-    i_design = np.argmin(P_W_feasible)
 
+    # At each wing loading, satisfy both the cruise and takeoff constraints.
+    P_W_required = np.maximum(P_W_cruise, P_W_takeoff)
+
+    i_design = np.argmax(np.where(feasible, W_S, -np.inf))
     W_S_design = W_S[i_design]
     P_W_design = P_W_required[i_design]
 
-    MTOW_val = MTOW.to("lbf").magnitude if hasattr(MTOW, "to") else MTOW #unit checker
+    MTOW_val = MTOW.to("lbf").magnitude if hasattr(MTOW, "to") else MTOW
     P_design = MTOW_val * P_W_design
-    S_design = MTOW_val * (1 / W_S_design)
+    S_design = MTOW_val / W_S_design
 
     return W_S_design, P_W_design, P_design, S_design, P_W_required
 

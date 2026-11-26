@@ -55,7 +55,7 @@ def MTOW_convergence(MTOW_guess,
     start_cruise_weight = takeoff_weight_fraction * climb_weight_fraction * MTOW_new # weight at the start of cruise
     exponent = -np.log(cruise_weight_fraction)
     mean_fraction = -np.expm1(-exponent) / exponent if exponent > 0 else 1.0  # effectively weight_cruise_start/weight_cruise_end
-    cruise_weight = start_cruise_weight * mean_fraction # weight bascially in the middle of cruise
+    cruise_weight = start_cruise_weight  * mean_fraction # weight bascially in the middle of cruise
     return MTOW_new, W_empty, W_fuel, cruise_weight, cruise_weight_fraction
 
 
