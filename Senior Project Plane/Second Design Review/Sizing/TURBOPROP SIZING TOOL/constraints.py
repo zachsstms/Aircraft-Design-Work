@@ -72,8 +72,10 @@ def takeoff_constraint(takeoff_distance, sigma_TO, CL_max_TO, W_S):
 
 def landing_constraint(landing_distance, rho_landing, CL_max_L, takeoff_weight_fraction,
                        climb_weight_fraction, cruise_weight_fraction, landing_weight_fraction):
-    # LANDING CONSTRAINT LINE PART 23 ROSKAM
-    V_SL = np.sqrt(landing_distance / 0.5316) * 1.68781  # kts to ft/sec
+    # LANDING CONSTRAINT LINE PART 25 ROSKAM
+    #V_SL = np.sqrt(landing_distance / 0.3) * 1.68781  # kts to ft/sec, this is for part 23
+    V_approach=np.sqrt(landing_distance/0.3)
+    V_SL=V_approach/1.3 * 1.68791 # kts to ft/s 
     weight_ratio = (takeoff_weight_fraction * climb_weight_fraction * cruise_weight_fraction * landing_weight_fraction)
     W_S_landing = (0.5 * rho_landing * V_SL**2 * CL_max_L) * (1 / weight_ratio)
     return float(np.squeeze(W_S_landing))

@@ -39,19 +39,19 @@ Wing = SimpleNamespace(
 )
 
 HorizontalTail = SimpleNamespace(
-    AspectRatio=4.7,           # aspect ratio of horizontal tail
+    AspectRatio=4.4,           # aspect ratio of horizontal tail
     V=1.2,                     # dimensionless tail volume coefficient
-    taper_ratio=0.462,         # taper ratio of horizontal tail
-    Length=39.0,               # ft
+    taper_ratio=0.6,         # taper ratio of horizontal tail
+    Length=40.6,               # ft, moment arm
     tc=0.09,                   # thickness/chord ratio
     SweepMidChord=0,        # radians
 )
 
 VerticalTail = SimpleNamespace(
-    AspectRatio=1.33,         # aspect ratio of vertical tail
-    V=0.13,                    # dimensionless tail volume coefficient
-    taper_ratio=0.463,         # taper ratio of vertical tail
-    Length=39.0,               # ft
+    AspectRatio=1.76,         # aspect ratio of vertical tail
+    V=0.12,                    # dimensionless tail volume coefficient
+    taper_ratio=0.55,         # taper ratio of vertical tail
+    Length=37,               # ft
     tc=0.09,                   # thickness/chord ratio
     SweepMidChord=0,        # radians
 )
@@ -63,7 +63,7 @@ cruise_altitude = 20_000 * ureg.ft
 Range = 825                   # nmi
 BSFC = 0.476                   # lb/(hp*hr), NOTE: Based off the PW127XT-M engine
 eta_p_cruise = 0.85            # propeller efficiency; dimensionless
-Payload_weight = 69*250        # lbf
+Payload_weight = 250*69       # lbf
 
 # Constraint inputs
 landing_distance = 3500        # ft; empirical correlation input
