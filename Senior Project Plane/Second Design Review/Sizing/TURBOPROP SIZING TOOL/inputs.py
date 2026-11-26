@@ -169,10 +169,85 @@ if __name__ == "__main__":
     cl_max_ld = math.sqrt(result["CD0"] / k)
     max_ld = 1 / (2 * math.sqrt(result["CD0"] * k))
 
-    print(f"Cruise CL = {cl_cruise:.3f}")
-    print(f"Cruise induced CD = {cd_induced:.5f}")
-    print(f"Polar maximum L/D = {max_ld:.2f} at CL = {cl_max_ld:.3f}")
-    print(f"Wing span = {wing.Span:.1f} ft")
-    print(f"Horizontal tail area = {horizontal_tail.Area:.1f} ft^2")
-    print(f"Vertical tail area = {vertical_tail.Area:.1f} ft^2")
-    print(f"Fuel Weight Fraction = {result['fuel_weight'] / result['MTOW']:.4f}")
+    def print_table(title, rows):
+        print(f"\n{title}")
+        print(f"{'Component':<14} {'Property':<32} {'Value':>18}  Units")
+        print("-" * 88)
+        for component, prop, value, units in rows:
+            print(f"{component:<14} {prop:<32} {value:>18}  {units}")
+
+
+    print_table("Design summary", [
+            ("Aircraft", "Iterations", f"{result['iterations']}", "-"),
+            ("Aircraft", "MTOW", f"{result['MTOW']:.1f}", "lbf"),
+            ("Aircraft", "Installed power", f"{result['constraints']['P_design']:.1f}", "shp"),
+            ("Aircraft", "Cruise L/D", f"{result['L_D']:.2f}", "-"),
+            ("Aircraft", "CD0", f"{result['CD0']:.5f}", "-"),
+            ("Aircraft", "Fuel weight fraction",
+            f"{result['fuel_weight'] / result['MTOW']:.4f}", "-"),
+            ("Cruise", "Lift coefficient (CL)", f"{cl_cruise:.3f}", "-"),
+            ("Cruise", "Induced drag coefficient (CD)", f"{cd_induced:.5f}", "-"),
+            ("Cruise", "Maximum L/D", f"{max_ld:.2f}", "-"),
+            ("Cruise", "CL at maximum L/D", f"{cl_max_ld:.3f}", "-"),
+        ])
+
+    print_table("Geometry inputs", [
+        ("Fuselage", "Length", f"{Fuselage.Length:.2f}", "ft"),
+        ("Fuselage", "Diameter", f"{Fuselage.Diameter:.2f}", "ft"),
+
+        ("Wing", "Aspect ratio", f"{Wing.AspectRatio:.3f}", "-"),
+        ("Wing", "Taper ratio", f"{Wing.taper_ratio:.3f}", "-"),
+        ("Wing", "Input sweep", f"{Wing.Sweep:.4f}", "rad"),
+        ("Wing", "Thickness/chord (t/c)", f"{Wing.tc:.3f}", "-"),
+        ("Wing", "Max-thickness location (x/c)", f"{Wing.xc:.3f}", "-"),
+        ("Wing", "Oswald efficiency", f"{Wing.OswaldEfficiency:.3f}", "-"),
+
+        ("Horizontal tail", "Aspect ratio", f"{HorizontalTail.AspectRatio:.3f}", "-"),
+        ("Horizontal tail", "Tail volume coefficient", f"{HorizontalTail.V:.3f}", "-"),
+        ("Horizontal tail", "Taper ratio", f"{HorizontalTail.taper_ratio:.3f}", "-"),
+        ("Horizontal tail", "Moment arm", f"{HorizontalTail.Length:.2f}", "ft"),
+        ("Horizontal tail", "Input mid-chord sweep", f"{HorizontalTail.SweepMidChord:.4f}", "rad"),
+        ("Horizontal tail", "Thickness/chord (t/c)", f"{HorizontalTail.tc:.3f}", "-"),
+
+        ("Vertical tail", "Aspect ratio", f"{VerticalTail.AspectRatio:.3f}", "-"),
+        ("Vertical tail", "Tail volume coefficient", f"{VerticalTail.V:.3f}", "-"),
+        ("Vertical tail", "Taper ratio", f"{VerticalTail.taper_ratio:.3f}", "-"),
+        ("Vertical tail", "Moment arm", f"{VerticalTail.Length:.2f}", "ft"),
+        ("Vertical tail", "Input mid-chord sweep", f"{VerticalTail.SweepMidChord:.4f}", "rad"),
+        ("Vertical tail", "Thickness/chord (t/c)", f"{VerticalTail.tc:.3f}", "-"),
+    ])
+
+    print_table("Calculated geometry", [
+            ("Fuselage", "Fineness ratio", f"{fuselage.FinenessRatio:.3f}", "-"),
+            ("Fuselage", "Wetted area", f"{fuselage.WetArea:.1f}", "ft^2"),
+
+            ("Wing", "Area", f"{wing.Area:.1f}", "ft^2"),
+            ("Wing", "Span", f"{wing.Span:.2f}", "ft"),
+            ("Wing", "Root chord", f"{wing.C_root:.2f}", "ft"),
+            ("Wing", "Tip chord", f"{wing.C_tip:.2f}", "ft"),
+            ("Wing", "Mean aerodynamic chord", f"{wing.Mac:.2f}", "ft"),
+            ("Wing", "MAC spanwise location (Y)", f"{wing.Y_bar:.2f}", "ft"),
+            ("Wing", "MAC longitudinal location (X)", f"{wing.X_bar:.2f}", "ft"),
+            ("Wing", "Taper-induced initial sweep", f"{wing.initial_sweep:.4f}", "rad"),
+            ("Wing", "Wetted area", f"{wing.WetArea:.1f}", "ft^2"),
+
+            ("Horizontal tail", "Area", f"{horizontal_tail.Area:.1f}", "ft^2"),
+            ("Horizontal tail", "Span", f"{horizontal_tail.Span:.2f}", "ft"),
+            ("Horizontal tail", "Root chord", f"{horizontal_tail.C_root:.2f}", "ft"),
+            ("Horizontal tail", "Tip chord", f"{horizontal_tail.C_tip:.2f}", "ft"),
+            ("Horizontal tail", "Mean aerodynamic chord", f"{horizontal_tail.Mac:.2f}", "ft"),
+            ("Horizontal tail", "MAC spanwise location (Y)", f"{horizontal_tail.Y_bar:.2f}", "ft"),
+            ("Horizontal tail", "MAC longitudinal location (X)", f"{horizontal_tail.X_bar:.2f}", "ft"),
+            ("Horizontal tail", "Taper-induced initial sweep", f"{horizontal_tail.initial_sweep:.4f}", "rad"),
+            ("Horizontal tail", "Wetted area", f"{horizontal_tail.WetArea:.1f}", "ft^2"),
+
+            ("Vertical tail", "Area", f"{vertical_tail.Area:.1f}", "ft^2"),
+            ("Vertical tail", "Span", f"{vertical_tail.Span:.2f}", "ft"),
+            ("Vertical tail", "Root chord", f"{vertical_tail.C_root:.2f}", "ft"),
+            ("Vertical tail", "Tip chord", f"{vertical_tail.C_tip:.2f}", "ft"),
+            ("Vertical tail", "Mean aerodynamic chord", f"{vertical_tail.Mac:.2f}", "ft"),
+            ("Vertical tail", "MAC spanwise location (Y)", f"{vertical_tail.Y_bar:.2f}", "ft"),
+            ("Vertical tail", "MAC longitudinal location (X)", f"{vertical_tail.X_bar:.2f}", "ft"),
+            ("Vertical tail", "Taper-induced initial sweep", f"{vertical_tail.initial_sweep:.4f}", "rad"),
+            ("Vertical tail", "Wetted area", f"{vertical_tail.WetArea:.1f}", "ft^2"),
+    ])
