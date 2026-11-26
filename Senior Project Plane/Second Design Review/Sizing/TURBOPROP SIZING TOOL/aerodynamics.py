@@ -14,7 +14,7 @@ ureg = pint.UnitRegistry()
     Outputs CDmin.
 '''
 
-def CDminFunct(Mach, Altitude, cruiseWeight, Fuselage, Wing, HorizontalTail, VerticalTail):
+def CDminFunct(Mach, Altitude, cruiseWeight, Fuselage, Wing, HorizontalTail, VerticalTail, plot=False):
 
     def get_Cf(Mach, Altitude, length): # provide altitude, length in ft. 
         alt_m = Altitude.to("meters").magnitude
@@ -51,9 +51,9 @@ def CDminFunct(Mach, Altitude, cruiseWeight, Fuselage, Wing, HorizontalTail, Ver
 
     ## Wet Area Calculation ##
     Fuselage.WetArea = np.pi * Fuselage.Diameter * Fuselage.Length
-    Wing.WetArea = 2 * Wing.Span * Wing.Mac
-    HorizontalTail.WetArea = 2 * HorizontalTail.Span * HorizontalTail.Mac
-    VerticalTail.WetArea = 2 * VerticalTail.Span * VerticalTail.Mac
+    Wing.WetArea = 2 * Wing.Area
+    HorizontalTail.WetArea = 2 * HorizontalTail.Area
+    VerticalTail.WetArea = 2 * VerticalTail.Area
 
     ## Referance Area (Wing Area) ##
     Sref = Wing.Area
@@ -70,9 +70,56 @@ def CDminFunct(Mach, Altitude, cruiseWeight, Fuselage, Wing, HorizontalTail, Ver
     Cl = np.linspace(0, 2.5, 250)
     CdTotal = CDmin + ((Cl**2) / (np.pi * Wing.AspectRatio * Wing.OswaldEfficiency))
 
-    Cl_cruise = cruiseWeight / (0.5 * (Atmosphere(Altitude).density[0] * 0.062428) * (Mach * (Atmosphere(Altitude).speed_of_sound[0] / 0.3048)**2) * Sref)
+    # Atmosphere returns SI; use slug/ft^3 and ft/s so q is in lbf/ft^2.
+    atmosphere = Atmosphere(Altitude.to("meters").magnitude)
+    density = (atmosphere.density[0] * ureg("kg/m^3")).to("slug/ft^3").magnitude
+    velocity = (Mach * atmosphere.speed_of_sound[0] * ureg("m/s")).to("ft/s").magnitude
+    q_cruise = 0.5 * density * velocity**2
+    Cl_cruise = cruiseWeight / (q_cruise * Sref)
     Cd_cruise = CDmin + ((Cl_cruise**2) / (np.pi * Wing.AspectRatio * Wing.OswaldEfficiency))
 
     Cl_Cd_cruise = Cl_cruise / Cd_cruise
+    if plot:
+        from pathlib import Path
+        import matplotlib as mpl
+        from matplotlib.figure import Figure
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+        mpl.rcParams.update({
+            'font.family': 'serif',
+            'font.serif': ['STIX Two Text', 'Times New Roman', 'DejaVu Serif'],
+            'mathtext.fontset': 'stix',
+            'font.size': 12,
+            'axes.labelsize': 10,
+            'legend.fontsize': 10,
+            'xtick.labelsize': 10,
+            'ytick.labelsize': 10,
+            'axes.linewidth': 0.8,
+        })
+        output_dir = Path(__file__).resolve().parent / "Plots"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        names = ["Fuselage", "Wing", "Horizontal tail", "Vertical tail"]
+        surfaces = [Fuselage, Wing, HorizontalTail, VerticalTail]
+        components = [s.Cf * s.FormFactor * s.InterferenceFactor * s.WetArea / Sref for s in surfaces]
+        names.append("Misc. allowance")
+        components.append((crudFactor - 1) * sum(components))
+
+        # 1. Drag Polar
+        fig = Figure(figsize=(7, 4.5), constrained_layout=True)
+        FigureCanvasAgg(fig)
+        ax = fig.subplots()
+        ax.plot(CdTotal, Cl, label="Drag polar")
+        ax.plot(Cd_cruise, Cl_cruise, "ro", label=f"Cruise L/D = {Cl_Cd_cruise:.2f}")
+        ax.set_xlabel("$C_D$"); ax.set_ylabel("$C_L$"); ax.grid(True); ax.legend()
+        fig.savefig(output_dir / "drag_polar.png", dpi=200)
+
+        # 2. Parasite Drag Breakdown
+        fig = Figure(figsize=(7, 4.5), constrained_layout=True)
+        FigureCanvasAgg(fig)
+        ax = fig.subplots()
+        ax.bar(names, components)
+        ax.set_ylabel("Contribution to $C_{D0}$"); ax.tick_params(axis="x", rotation=20)
+        ax.grid(axis="y", alpha=0.3)
+        fig.savefig(output_dir / "drag_breakdown.png", dpi=200)
 
     return CDmin, CdTotal, Cl_Cd_cruise, Wing, Fuselage, HorizontalTail, VerticalTail

@@ -6,8 +6,12 @@ All units in: nmi, knots, lb/(hp hr)
 '''
 import numpy as np
 
+# Mission segment assumptions shared with the constraint diagram.
+takeoff_weight_fraction = 0.97 # values from roskam
+climb_weight_fraction = 0.985
+landing_weight_fraction = 0.995
+
 def MTOW_convergence(MTOW_guess, 
-                     EWF_initial, 
                      L_D_cruise, 
                      Range,
                      BSFC,
@@ -17,10 +21,7 @@ def MTOW_convergence(MTOW_guess,
     # For now, using Roskam:
     # This function calculates how much weight is lost during each stage of the mission     
     def mission_breakdown(Range, BSFC,eta_p_cruise,L_D_cruise):
-        takeoff_weight_fraction=0.97 # value from Roskam
-        climb_weight_fraction=0.985
         cruise_weight_fraction=np.exp(-Range*BSFC/(L_D_cruise*eta_p_cruise*325.9)) #breguet range, 325.9 to get nmi
-        landing_weight_fraction=0.995
         #calculate fuel weight fraction:
         fuel_weight_fraction=(1-takeoff_weight_fraction*
                             climb_weight_fraction*cruise_weight_fraction*
@@ -29,22 +30,32 @@ def MTOW_convergence(MTOW_guess,
         return fuel_weight_fraction, cruise_weight_fraction
     
     [fuel_weight_fraction, cruise_weight_fraction] = mission_breakdown(Range, BSFC, eta_p_cruise, L_D_cruise) #call breakdown function, giving W_f/MTOW
+    if cruise_weight_fraction < 1e-8:
+        raise ValueError("The mission fuel fraction is too large; check range, BSFC, efficiency, and L/D.")
     # This is running the MTOW guess convergence, as shown in "Mission Breakdown" in Excel
     # The result is the converged weights
-    W_empty=MTOW_guess*EWF_initial
-    W_fuel=MTOW_guess*fuel_weight_fraction
-    MTOW_new=W_empty+W_fuel+Payload_weight
-    difference=np.abs(MTOW_new-MTOW_guess)/MTOW_guess
-    #run the sizing convergence loop
-    iterations=0
-    while difference>0.001 and iterations<100:
-        MTOW_guess=MTOW_new
-        W_empty=MTOW_guess*(0.96*MTOW_guess**(-0.05)) # empirical relationship from Raymer MTOW*EWF=W_E
-        W_fuel=MTOW_guess*fuel_weight_fraction
+
+
+    for iterations in range(500):
+        W_empty = MTOW_guess*(0.96*MTOW_guess**(-0.05)) # empirical relationship from Raymer MTOW*EWF=W_E
+        W_fuel = MTOW_guess*fuel_weight_fraction
         MTOW_new=W_empty+W_fuel+Payload_weight
-        cruise_weight=cruise_weight_fraction*MTOW_new # needed for `aerodynamics.py`
         difference=np.abs(MTOW_new-MTOW_guess)/MTOW_guess
-        iterations+=1 # basically this is a cap to make sure the thing doesn't get stuck
-    return MTOW_new, W_empty, W_fuel, cruise_weight
+        if not np.isfinite(MTOW_new) or MTOW_new > 1e10:
+            raise RuntimeError("Mission weights diverged; check the mission inputs.")
+        if difference < 1e-9: # this is the weight loop tolerance
+            break
+        MTOW_guess = MTOW_new
+    else:
+        raise RuntimeError("MTOW did not converge within 500 mission iterations.")
+
+    W_empty = MTOW_new * (0.96 * MTOW_new**(-0.05))
+    W_fuel = MTOW_new * fuel_weight_fraction
+    # Start and end of cruise include the preceding takeoff and climb burns.
+    start_cruise_weight = takeoff_weight_fraction * climb_weight_fraction * MTOW_new # weight at the start of cruise
+    exponent = -np.log(cruise_weight_fraction)
+    mean_fraction = -np.expm1(-exponent) / exponent if exponent > 0 else 1.0  # effectively weight_cruise_start/weight_cruise_end
+    cruise_weight = start_cruise_weight * mean_fraction # weight bascially in the middle of cruise
+    return MTOW_new, W_empty, W_fuel, cruise_weight, cruise_weight_fraction
 
 

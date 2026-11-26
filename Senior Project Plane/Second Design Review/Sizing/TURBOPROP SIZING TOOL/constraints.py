@@ -33,6 +33,9 @@ from ambiance import Atmosphere
 import pint
 ureg = pint.UnitRegistry()
 from IPython.display import Math, display
+from pathlib import Path
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 plt.rcParams.update({
     'font.family': 'times new roman',
     'font.serif': ['STIX Two Text', 'Times New Roman', 'DejaVu Serif'],
@@ -46,7 +49,7 @@ plt.rcParams.update({
 }) # plotting code (consistent)
 
     
-def cruise_constraint(cruise_alt, M_cruise, alpha_P_cruise, cruise_weight_fraction,
+def cruise_constraint(cruise_alt, M_cruise, alpha_P_cruise, cruise_weight_ratio,
                       eta_p_cruise, C_D0, k, W_S,):
     a_cruisealt = (Atmosphere(cruise_alt.to("meters").magnitude).speed_of_sound)*ureg("m/s").to("ft/s").magnitude # ISA to find speed of sound, convert to (ft/s)
     rho_cruisealt=Atmosphere(cruise_alt.to("meters").magnitude).density*ureg("kg/m^3").to("slug/ft^3").magnitude # ISA to find density at cruise altitude (slug/ft^3)
@@ -54,7 +57,7 @@ def cruise_constraint(cruise_alt, M_cruise, alpha_P_cruise, cruise_weight_fracti
     alpha_P_cruise=alpha_P_cruise # at altitude, there is a power penalty compared to takeoff
     q_cruise=0.5*rho_cruisealt*V_cruise**2 # dynamic pressure at cruise
     P_W_cruise =((V_cruise / (550 * eta_p_cruise * alpha_P_cruise))*
-    (q_cruise*C_D0/W_S +(k*(W_S/q_cruise)*cruise_weight_fraction**2))) # the 550 is to get horsepower
+    (q_cruise*C_D0/W_S +(k*(W_S/q_cruise)*cruise_weight_ratio**2))) # the 550 is to get horsepower
     return P_W_cruise
 
 # NOTES: Takeoff efficiency imbedded in reference values (constant of 1.5334) 
@@ -69,18 +72,13 @@ def takeoff_constraint(takeoff_distance, sigma_TO, CL_max_TO, W_S):
     P_W_takeoff = 1/((TOP_23 * sigma_TO * CL_max_TO) / W_S) #fit P_W_TO to wing loading sweep
     return P_W_takeoff 
 
-def landing_constraint(landing_distance, rho_sl, CL_max_L, takeoff_weight_fraction,
+def landing_constraint(landing_distance, rho_landing, CL_max_L, takeoff_weight_fraction,
                        climb_weight_fraction, cruise_weight_fraction, landing_weight_fraction):
     # LANDING CONSTRAINT LINE PART 23 ROSKAM
     V_SL = np.sqrt(landing_distance / 0.5316) * 1.68781  # kts to ft/sec
     weight_ratio = (takeoff_weight_fraction * climb_weight_fraction * cruise_weight_fraction * landing_weight_fraction)
-    W_S_landing = (0.5 * rho_sl * V_SL**2 * CL_max_L) * (1 / weight_ratio)
+    W_S_landing = (0.5 * rho_landing * V_SL**2 * CL_max_L) * (1 / weight_ratio)
     return float(np.squeeze(W_S_landing))
-
-    # call functions to get values for the design point
-    cruise_constraint(cruise_alt, M_cruise, alpha_P_cruise, cruise_weight_fraction)
-    takeoff_constraint(takeoff_distance)
-    landing_constraint(landing_distance,takeoff_weight_fraction, climb_weight_fraction, cruise_weight_fraction, landing_weight_fraction)
 
 # need to find the design points
 def design_point(W_S, W_S_landing, P_W_cruise, P_W_takeoff, MTOW):
@@ -113,31 +111,35 @@ def constraint_analysis(MTOW, C_D0, AR, e, M_cruise,
                         landing_distance,
                         landing_altitude,
                         takeoff_distance,
-                        takeoff_altitude, sigma_TO, CL_max_TO, CL_max_L, eta_p_cruise,
+                        takeoff_altitude, CL_max_TO, CL_max_L, eta_p_cruise,
                         k,
                         cruise_weight_fraction,
+                        cruise_weight_ratio,
                         takeoff_weight_fraction,
                         climb_weight_fraction,
                         landing_weight_fraction,
                         alpha_P_cruise,
                         plot=True):
-    sealevel = Atmosphere(0) # gives SI 
-    rho_sl = sealevel.density * ureg("kg/m^3").to("slug/ft^3").magnitude # convert units
-    W_S = np.linspace(1, 200, 1000) # wingloading linspace
+    sealevel = Atmosphere(0) # gives SI
+    takeoff_atmosphere = Atmosphere(takeoff_altitude.to("meters").magnitude) # compute the takeoff and landing atmospheric parameters 
+    landing_atmosphere = Atmosphere(landing_altitude.to("meters").magnitude)
+    sigma_TO = takeoff_atmosphere.density.item() / sealevel.density.item()
+    rho_landing = (landing_atmosphere.density.item() * ureg("kg/m^3")).to("slug/ft^3").magnitude # convert to Imperial units
+    W_S_landing = landing_constraint(
+        landing_distance, rho_landing, CL_max_L, takeoff_weight_fraction,
+        climb_weight_fraction, cruise_weight_fraction, landing_weight_fraction # call landing constraint function
+    )
+    # dynamic linspace for wing loading
+    W_S = np.unique(np.append(np.linspace(W_S_landing / 2000, 1.2 * W_S_landing, 2000), W_S_landing)) 
 
     # Assign outputs from each stage
     P_W_cruise = cruise_constraint(
-        cruise_alt, M_cruise, alpha_P_cruise, cruise_weight_fraction,
+        cruise_alt, M_cruise, alpha_P_cruise, cruise_weight_ratio,
         eta_p_cruise, C_D0, k, W_S
     )
     P_W_takeoff = takeoff_constraint(
         takeoff_distance, sigma_TO, CL_max_TO, W_S
     )
-    W_S_landing = landing_constraint(
-        landing_distance, rho_sl, CL_max_L, takeoff_weight_fraction,
-        climb_weight_fraction, cruise_weight_fraction, landing_weight_fraction
-    )
-
     W_S_design, P_W_design, P_design, S_design, P_W_required = design_point(
         W_S, W_S_landing, P_W_cruise, P_W_takeoff, MTOW
     )
@@ -153,6 +155,7 @@ def constraint_analysis(MTOW, C_D0, AR, e, M_cruise,
         "P_W_design": P_W_design,
         "P_design": P_design,
         "S_design": S_design,
+        "W_S_landing": W_S_landing,
         "fig": fig,
     }
 
@@ -161,18 +164,13 @@ def constraint_analysis(MTOW, C_D0, AR, e, M_cruise,
 # plotting function (taken from our old plots)
  
 def constraint_diagram(W_S, W_S_design, P_W_design, P_W_takeoff, P_W_cruise, W_S_landing, MTOW, P_W_required):
-    fig, ax = plt.subplots(figsize=(7.0, 4.5), dpi=300, constrained_layout=True)
+    fig = Figure(figsize=(7.0, 4.5), dpi=200, constrained_layout=True)
+    FigureCanvasAgg(fig)
+    ax = fig.subplots()
 
     cruise_line, = ax.plot(W_S, P_W_cruise, color="green", lw=1.6)
     takeoff_line, = ax.plot(W_S, P_W_takeoff, color="tab:blue", lw=1.6, zorder=3)
     landing_line = ax.axvline(W_S_landing, color="black", lw=1.6, zorder=3)
-
-    MTOW_qty = MTOW if hasattr(MTOW, "to") else MTOW * ureg.pound_force
-    engine_limit = (6000 * ureg.horsepower / MTOW_qty).to("horsepower / pound_force").magnitude
-    engine_line = ax.axhline(
-        engine_limit, color="tab:gray", lw=1.6,
-        label=rf"PW127M Limit, $P/W={engine_limit:.1f}\,\mathrm{{hp/lbf}}$" #representative engine limit (can take out)
-    )
 
     for line, color in [
         (cruise_line, "green"),
@@ -182,9 +180,6 @@ def constraint_diagram(W_S, W_S_design, P_W_design, P_W_takeoff, P_W_cruise, W_S
         line.set_path_effects([
             pe.withTickedStroke(spacing=10, angle=585, length=0.6, foreground=color)
         ])
-    engine_line.set_path_effects([
-        pe.withTickedStroke(spacing=10, angle=585 - 80, length=0.6, foreground="tab:gray")
-    ])
 
     ax.scatter(
         W_S_design, P_W_design, s=80, marker="o",
@@ -192,10 +187,11 @@ def constraint_diagram(W_S, W_S_design, P_W_design, P_W_takeoff, P_W_cruise, W_S
         label=rf"Design point: $W/S = {W_S_design:.1f}\ \mathrm{{lbf/ft^2}}, \ P/W = {P_W_design:.2f}\ \mathrm{{hp/lbf}}$"
     )
 
-    x_visible = (W_S >= 20) & (W_S <= 1.05 * W_S_landing)
+    x_min = min(0.2 * W_S_landing, 0.5 * W_S_design)
+    x_visible = (W_S >= x_min) & (W_S <= 1.05 * W_S_landing)
     y_top = 1.12 * np.max(P_W_required[x_visible])
 
-    ax.set_xlim(20, 1.05 * W_S_landing)
+    ax.set_xlim(x_min, 1.05 * W_S_landing)
     ax.set_ylim(0, y_top)
     ax.set_xlabel(r"Wing loading, $W_{TO}/S$ [$\mathrm{lbf/ft^2}$]")
     ax.set_ylabel(r"Installed shaft-power loading, $P_{SL}/W_{TO}$ [$\mathrm{shp/lbf}$]")
@@ -209,9 +205,8 @@ def constraint_diagram(W_S, W_S_design, P_W_design, P_W_takeoff, P_W_cruise, W_S
                 xytext=(6, -10), textcoords="offset points", color="tab:blue", va="center")
     ax.annotate("Landing Limit", xy=(W_S_landing, 0.75 * y_top),
                 xytext=(10, -76), textcoords="offset points", rotation=90, color="black", va="center")
-    ax.annotate("Representative Engine Limit (PW127M)", xy=(x_label, engine_limit),
-                xytext=(-200, 5), textcoords="offset points", color="tab:gray", va="bottom")
-
-    fig.savefig("Plots/constraint_diagram.png")
+    output_dir = Path(__file__).resolve().parent / "Plots"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_dir / "constraint_diagram.png")
 
     return fig

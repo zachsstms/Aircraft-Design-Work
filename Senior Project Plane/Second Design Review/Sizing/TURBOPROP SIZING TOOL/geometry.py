@@ -14,19 +14,13 @@ from types import SimpleNamespace
 # X_bar = longitudinal location of MAC starting from the datum
 
 
-def planeGeometry(Wing):
+def planeGeometry(Fuselage, Wing, HorizontalTail, VerticalTail):
 
     '''
     This function needs inputs of the aspect ratio, wing area, and wing taper ratio.
 
     It will output the fuselage, wing, horizontal tail, and vertical tail geometries as SimpleNamespace objects.
     '''
-
-    ## Creating Classes ##
-    Fuselage = SimpleNamespace()
-    HorizontalTail = SimpleNamespace()
-    VerticalTail = SimpleNamespace()
-
     ## Trapezoidal wing geometry calculations ##
     Wing.Span = (Wing.AspectRatio * Wing.Area) ** 0.5
     Wing.C_root = (2*Wing.Area) / (Wing.Span * (1 + Wing.taper_ratio))
@@ -47,7 +41,7 @@ def planeGeometry(Wing):
     HorizontalTail.X_bar = HorizontalTail.Y_bar * np.tan(HorizontalTail.initial_sweep)  # initial_sweep is already in radians
 
     ## Vertical Tail Geometry Calculations ##
-    VerticalTail.Area = VerticalTail.V * Wing.Area * Wing.Mac / VerticalTail.Length
+    VerticalTail.Area = VerticalTail.V * Wing.Area * Wing.Span / VerticalTail.Length
     VerticalTail.Span = (VerticalTail.AspectRatio * VerticalTail.Area) ** 0.5
     VerticalTail.C_root = (2*VerticalTail.Area) / (VerticalTail.Span * (1 + VerticalTail.taper_ratio))
     VerticalTail.C_tip = VerticalTail.C_root * VerticalTail.taper_ratio
