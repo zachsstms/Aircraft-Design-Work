@@ -5,12 +5,30 @@ and runs each function.
 
 from copy import deepcopy
 import numpy as np
-from aerodynamics import CDminFunct
-from constraints import constraint_analysis
-from geometry import planeGeometry
-from mission import (MTOW_convergence, takeoff_weight_fraction,
-                     climb_weight_fraction, landing_weight_fraction)
-import inputs
+if __package__:
+    # Imports when the tool is used as a package.
+    from .aerodynamics import CDminFunct
+    from .constraints import constraint_analysis
+    from .geometry import planeGeometry
+    from .mission import (
+        MTOW_convergence,
+        takeoff_weight_fraction,
+        climb_weight_fraction,
+        landing_weight_fraction,
+    )
+    from . import inputs
+else:
+    # Imports when running inputs.py directly.
+    from aerodynamics import CDminFunct
+    from constraints import constraint_analysis
+    from geometry import planeGeometry
+    from mission import (
+        MTOW_convergence,
+        takeoff_weight_fraction,
+        climb_weight_fraction,
+        landing_weight_fraction,
+    )
+    import inputs
 
 # this is the overall change between iterations
 def _relative_change(new, old):

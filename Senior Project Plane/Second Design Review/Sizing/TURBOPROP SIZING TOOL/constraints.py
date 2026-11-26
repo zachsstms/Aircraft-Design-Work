@@ -32,7 +32,6 @@ import matplotlib.patheffects as pe
 from ambiance import Atmosphere
 import pint
 ureg = pint.UnitRegistry()
-from IPython.display import Math, display
 from pathlib import Path
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg

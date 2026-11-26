@@ -144,7 +144,10 @@ def validate_inputs(cfg):
 # run this with `python inputs.py`
 if __name__ == "__main__":
     import sys
-    from solver import solve
+    if __package__:
+        from .solver import solve
+    else:
+        from solver import solve
     result = solve(sys.modules[__name__], plot=True)
     print(f"Converged in {result['iterations']} iterations")
     print(f"MTOW = {result['MTOW']:,.1f} lbf, S = {result['S']:,.1f} ft^2")
